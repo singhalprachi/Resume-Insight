@@ -42,7 +42,7 @@ export async function registerRoutes(
 
       // Text Extraction
       if (req.file.mimetype === 'application/pdf') {
-        const data = await pdf(req.file.buffer);
+        const data = await (pdf as any)(req.file.buffer);
         extractedText = data.text;
       } else if (req.file.mimetype === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') {
         const result = await mammoth.extractRawText({ buffer: req.file.buffer });
