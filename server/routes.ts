@@ -6,8 +6,14 @@ import { registerChatRoutes } from "./replit_integrations/chat";
 import { registerImageRoutes } from "./replit_integrations/image";
 import { registerAudioRoutes } from "./replit_integrations/audio";
 import multer from "multer";
-import * as pdfLib from "pdf-parse";
-const pdf = pdfLib.default || pdfLib;
+// import * as pdfLib from "pdf-parse";
+// const pdf = pdfLib.default || pdfLib;
+import pdf from "pdf-parse";
+
+// later
+const data = await pdf(req.file.buffer);
+extractedText = data.text;
+
 import mammoth from "mammoth";
 import OpenAI from "openai";
 
