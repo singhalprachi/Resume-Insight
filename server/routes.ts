@@ -97,8 +97,8 @@ Analyze the provided resume text and extract the following in JSON format:
 - skills: Array of key technical and soft skills found.
 - strengths: Array of 3-5 strong points about the candidate.
 - weaknesses: Array of 3-5 areas for improvement or missing key elements.
-- ats_score: A number between 0-100 estimating how well-formatted and keyword-rich the resume is for ATS.
-- suggestions: Array of 3-5 actionable specific tips to improve the resume.
+- atsScore: A number between 0-100 estimating how well-formatted and keyword-rich the resume is for ATS.
+- improvementSuggestions: Array of 3-5 actionable specific tips to improve the resume.
 
 Return ONLY the JSON object. Do not wrap in markdown code blocks.`
           },

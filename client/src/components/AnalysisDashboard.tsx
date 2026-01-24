@@ -59,7 +59,7 @@ export function AnalysisDashboard({ resume }: AnalysisDashboardProps) {
                 </CardTitle>
               </CardHeader>
               <CardContent className="pt-6">
-                <ScoreChart score={analysis.atsScore} />
+                <ScoreChart score={analysis.atsScore || analysis.ats_score || 0} />
                 <div className="mt-4 text-center">
                   <p className="text-sm text-muted-foreground">
                     Your resume scores higher than <span className="font-semibold text-foreground">72%</span> of candidates.
@@ -79,7 +79,7 @@ export function AnalysisDashboard({ resume }: AnalysisDashboardProps) {
               </CardHeader>
               <CardContent>
                 <div className="flex flex-wrap gap-2">
-                  {analysis.skills.map((skill, i) => (
+                  {(analysis.skills || []).map((skill, i) => (
                     <Badge 
                       key={i} 
                       variant="secondary"
@@ -106,7 +106,7 @@ export function AnalysisDashboard({ resume }: AnalysisDashboardProps) {
               </CardHeader>
               <CardContent>
                 <ul className="space-y-3">
-                  {analysis.strengths.map((point, i) => (
+                  {(analysis.strengths || []).map((point, i) => (
                     <li key={i} className="flex items-start gap-3 text-sm">
                       <span className="w-1.5 h-1.5 rounded-full bg-green-500 mt-2 flex-shrink-0" />
                       <span className="text-foreground/80">{point}</span>
@@ -125,7 +125,7 @@ export function AnalysisDashboard({ resume }: AnalysisDashboardProps) {
               </CardHeader>
               <CardContent>
                 <ul className="space-y-3">
-                  {analysis.weaknesses.map((point, i) => (
+                  {(analysis.weaknesses || []).map((point, i) => (
                     <li key={i} className="flex items-start gap-3 text-sm">
                       <span className="w-1.5 h-1.5 rounded-full bg-amber-500 mt-2 flex-shrink-0" />
                       <span className="text-foreground/80">{point}</span>
@@ -146,7 +146,7 @@ export function AnalysisDashboard({ resume }: AnalysisDashboardProps) {
               </CardHeader>
               <CardContent className="pt-6">
                 <div className="space-y-4">
-                  {analysis.improvementSuggestions.map((suggestion, i) => (
+                  {(analysis.improvementSuggestions || analysis.suggestions || []).map((suggestion, i) => (
                     <div key={i} className="group">
                       <div className="flex gap-4">
                         <div className="flex-shrink-0 w-8 h-8 rounded-full bg-primary/10 text-primary flex items-center justify-center font-bold text-sm">
@@ -156,7 +156,7 @@ export function AnalysisDashboard({ resume }: AnalysisDashboardProps) {
                           <p className="text-foreground leading-relaxed">{suggestion}</p>
                         </div>
                       </div>
-                      {i < analysis.improvementSuggestions.length - 1 && (
+                      {i < (analysis.improvementSuggestions || analysis.suggestions || []).length - 1 && (
                         <Separator className="my-4 opacity-50" />
                       )}
                     </div>
