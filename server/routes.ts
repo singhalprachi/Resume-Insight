@@ -37,34 +37,51 @@ export async function registerRoutes(
   app.post(api.resumes.upload.path, upload.single('file'), async (req, res) => {
     console.log(`POST ${api.resumes.upload.path} hit`);
     console.log("OPENAI_API_KEY status at route hit:", process.env.OPENAI_API_KEY ? "Loaded" : "Not found");
+
     try {
-      if (!req.file) {
+      const file = req.file;
+      if (!file) {
         return res.status(400).json({ message: "No file uploaded" });
       }
 
       const sessionId = req.body.sessionId || "anonymous";
-      let extractedText = "";
+      let text = "";
 
       // Text Extraction
-      try {
-        if (req.file.mimetype === 'application/pdf') {
+      if (file.mimetype === "application/pdf") {
+        try {
           console.log("Extracting text from PDF...");
-          const data = await pdfParse(req.file.buffer);
-          extractedText = data.text;
-        } else if (req.file.mimetype === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') {
-          console.log("Extracting text from DOCX...");
-          const result = await mammoth.extractRawText({ buffer: req.file.buffer });
-          extractedText = result.value;
-        } else {
-          return res.status(400).json({ message: "Unsupported file type. Please upload PDF or DOCX." });
+          const data = await pdfParse(file.buffer);
+          text = data.text;
+          if (!text || text.trim().length === 0) {
+            return res.status(400).json({
+              message: "The uploaded PDF appears to be empty or unreadable.",
+            });
+          }
+        } catch (err) {
+          console.error("PDF parse failed:", err);
+          return res.status(400).json({
+            message: "Could not extract text from the provided PDF.",
+          });
         }
-      } catch (extractError) {
-        console.error("Text extraction failed:", extractError);
-        return res.status(400).json({ message: "Could not extract text from the provided file." });
-      }
-
-      if (!extractedText || extractedText.trim().length === 0) {
-        return res.status(400).json({ message: "The uploaded file appears to be empty or unreadable." });
+      } else if (file.mimetype === "application/vnd.openxmlformats-officedocument.wordprocessingml.document") {
+        try {
+          console.log("Extracting text from DOCX...");
+          const result = await mammoth.extractRawText({ buffer: file.buffer });
+          text = result.value;
+          if (!text || text.trim().length === 0) {
+            return res.status(400).json({
+              message: "The uploaded DOCX appears to be empty or unreadable.",
+            });
+          }
+        } catch (err) {
+          console.error("DOCX parse failed:", err);
+          return res.status(400).json({
+            message: "Could not extract text from the provided DOCX file.",
+          });
+        }
+      } else {
+        return res.status(400).json({ message: "Unsupported file type. Please upload PDF or DOCX." });
       }
 
       console.log("Calling OpenAI with model: gpt-4o-mini");
@@ -75,29 +92,25 @@ export async function registerRoutes(
           {
             role: "system",
             content: `You are an expert Resume Analyzer and Career Coach. 
-            Analyze the provided resume text and extract the following in JSON format:
-            - summary: A brief professional summary of the candidate.
-            - skills: Array of key technical and soft skills found.
-            - strengths: Array of 3-5 strong points about the candidate.
-            - weaknesses: Array of 3-5 areas for improvement or missing key elements.
-            - ats_score: A number between 0-100 estimating how well-formatted and keyword-rich the resume is for ATS.
-            - suggestions: Array of 3-5 actionable specific tips to improve the resume.
-            
-            Return ONLY the JSON object. Do not wrap in markdown code blocks.`
+Analyze the provided resume text and extract the following in JSON format:
+- summary: A brief professional summary of the candidate.
+- skills: Array of key technical and soft skills found.
+- strengths: Array of 3-5 strong points about the candidate.
+- weaknesses: Array of 3-5 areas for improvement or missing key elements.
+- ats_score: A number between 0-100 estimating how well-formatted and keyword-rich the resume is for ATS.
+- suggestions: Array of 3-5 actionable specific tips to improve the resume.
+
+Return ONLY the JSON object. Do not wrap in markdown code blocks.`
           },
-          {
-            role: "user",
-            content: extractedText
-          }
+          { role: "user", content: text }
         ],
         response_format: { type: "json_object" }
       });
 
       const analysisContent = response.choices[0].message.content;
       console.log("OpenAI raw response received");
-      if (!analysisContent) {
-        throw new Error("Failed to get analysis from AI");
-      }
+
+      if (!analysisContent) throw new Error("Failed to get analysis from AI");
 
       let analysis;
       try {
@@ -110,8 +123,8 @@ export async function registerRoutes(
       // Save to DB
       const resume = await storage.createResume({
         sessionId,
-        filename: req.file.originalname,
-        content: extractedText,
+        filename: file.originalname,
+        content: text,
         analysis: analysis
       });
 
@@ -125,7 +138,7 @@ export async function registerRoutes(
 
   // Get Resumes List
   app.get(api.resumes.list.path, async (req, res) => {
-    const sessionId = req.query.sessionId as string || "anonymous";
+    const sessionId = (req.query.sessionId as string) || "anonymous";
     const resumes = await storage.getResumes(sessionId);
     res.json(resumes);
   });
