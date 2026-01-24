@@ -6,9 +6,11 @@ import { registerChatRoutes } from "./replit_integrations/chat";
 import { registerImageRoutes } from "./replit_integrations/image";
 import { registerAudioRoutes } from "./replit_integrations/audio";
 import multer from "multer";
-import * as pdfParse from "pdf-parse";
 import mammoth from "mammoth";
 import OpenAI from "openai";
+import { createRequire } from "module";
+const require = createRequire(import.meta.url);
+const pdf = require("pdf-parse");
 
 const upload = multer({ 
   storage: multer.memoryStorage(),
@@ -45,7 +47,7 @@ export async function registerRoutes(
 
       // Text Extraction
       if (req.file.mimetype === 'application/pdf') {
-        const data = await ((pdfParse as any).default || (pdfParse as any))(req.file.buffer);
+        const data = await pdf(req.file.buffer);
         extractedText = data.text;
       } else if (req.file.mimetype === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') {
         const result = await mammoth.extractRawText({ buffer: req.file.buffer });
