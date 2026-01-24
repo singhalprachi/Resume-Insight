@@ -34,6 +34,7 @@ export async function registerRoutes(
   // Resume Upload & Analysis
   app.post(api.resumes.upload.path, upload.single('file'), async (req, res) => {
     console.log(`POST ${api.resumes.upload.path} hit`);
+    console.log("OPENAI_API_KEY status at route hit:", process.env.OPENAI_API_KEY ? "Loaded" : "Not found");
     try {
       if (!req.file) {
         return res.status(400).json({ message: "No file uploaded" });
@@ -44,7 +45,7 @@ export async function registerRoutes(
 
       // Text Extraction
       if (req.file.mimetype === 'application/pdf') {
-        const data = await pdfParse(req.file.buffer);
+        const data = await (pdfParse as any)(req.file.buffer);
         extractedText = data.text;
       } else if (req.file.mimetype === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') {
         const result = await mammoth.extractRawText({ buffer: req.file.buffer });
