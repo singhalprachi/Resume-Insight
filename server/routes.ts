@@ -10,7 +10,7 @@ import mammoth from "mammoth";
 import OpenAI from "openai";
 import { createRequire } from "module";
 const require = createRequire(import.meta.url);
-const pdf = require("pdf-parse");
+const pdfParse = require("pdf-parse");
 
 const upload = multer({ 
   storage: multer.memoryStorage(),
@@ -46,18 +46,25 @@ export async function registerRoutes(
       let extractedText = "";
 
       // Text Extraction
-      if (req.file.mimetype === 'application/pdf') {
-        const data = await pdf(req.file.buffer);
-        extractedText = data.text;
-      } else if (req.file.mimetype === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') {
-        const result = await mammoth.extractRawText({ buffer: req.file.buffer });
-        extractedText = result.value;
-      } else {
-        return res.status(400).json({ message: "Unsupported file type. Please upload PDF or DOCX." });
+      try {
+        if (req.file.mimetype === 'application/pdf') {
+          console.log("Extracting text from PDF...");
+          const data = await pdfParse(req.file.buffer);
+          extractedText = data.text;
+        } else if (req.file.mimetype === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') {
+          console.log("Extracting text from DOCX...");
+          const result = await mammoth.extractRawText({ buffer: req.file.buffer });
+          extractedText = result.value;
+        } else {
+          return res.status(400).json({ message: "Unsupported file type. Please upload PDF or DOCX." });
+        }
+      } catch (extractError) {
+        console.error("Text extraction failed:", extractError);
+        return res.status(400).json({ message: "Could not extract text from the provided file." });
       }
 
       if (!extractedText || extractedText.trim().length === 0) {
-        return res.status(400).json({ message: "Could not extract text from file." });
+        return res.status(400).json({ message: "The uploaded file appears to be empty or unreadable." });
       }
 
       console.log("Calling OpenAI with model: gpt-4o-mini");
@@ -69,11 +76,12 @@ export async function registerRoutes(
             role: "system",
             content: `You are an expert Resume Analyzer and Career Coach. 
             Analyze the provided resume text and extract the following in JSON format:
+            - summary: A brief professional summary of the candidate.
             - skills: Array of key technical and soft skills found.
             - strengths: Array of 3-5 strong points about the candidate.
             - weaknesses: Array of 3-5 areas for improvement or missing key elements.
-            - atsScore: A number between 0-100 estimating how well-formatted and keyword-rich the resume is for ATS.
-            - improvementSuggestions: Array of 3-5 actionable specific tips to improve the resume.
+            - ats_score: A number between 0-100 estimating how well-formatted and keyword-rich the resume is for ATS.
+            - suggestions: Array of 3-5 actionable specific tips to improve the resume.
             
             Return ONLY the JSON object. Do not wrap in markdown code blocks.`
           },
