@@ -16,14 +16,16 @@ const upload = multer({
 });
 
 const openai = new OpenAI({
-  apiKey: process.env.AI_INTEGRATIONS_OPENAI_API_KEY,
-  baseURL: process.env.AI_INTEGRATIONS_OPENAI_BASE_URL,
+  apiKey: process.env.OPENAI_API_KEY,
 });
 
 export async function registerRoutes(
   httpServer: Server,
   app: Express
 ): Promise<Server> {
+  console.log("Registering routes...");
+  console.log("OPENAI_API_KEY status:", process.env.OPENAI_API_KEY ? "Loaded" : "Not found");
+
   // Register integration routes
   registerChatRoutes(app);
   registerImageRoutes(app);
@@ -31,6 +33,7 @@ export async function registerRoutes(
 
   // Resume Upload & Analysis
   app.post(api.resumes.upload.path, upload.single('file'), async (req, res) => {
+    console.log(`POST ${api.resumes.upload.path} hit`);
     try {
       if (!req.file) {
         return res.status(400).json({ message: "No file uploaded" });
@@ -54,9 +57,10 @@ export async function registerRoutes(
         return res.status(400).json({ message: "Could not extract text from file." });
       }
 
+      console.log("Calling OpenAI with model: gpt-4o-mini");
       // OpenAI Analysis
       const response = await openai.chat.completions.create({
-        model: "gpt-5.1",
+        model: "gpt-4o-mini",
         messages: [
           {
             role: "system",
@@ -79,11 +83,18 @@ export async function registerRoutes(
       });
 
       const analysisContent = response.choices[0].message.content;
+      console.log("OpenAI raw response received");
       if (!analysisContent) {
         throw new Error("Failed to get analysis from AI");
       }
 
-      const analysis = JSON.parse(analysisContent);
+      let analysis;
+      try {
+        analysis = JSON.parse(analysisContent);
+      } catch (parseError) {
+        console.error("Failed to parse OpenAI response as JSON:", analysisContent);
+        throw new Error("Invalid AI response format");
+      }
 
       // Save to DB
       const resume = await storage.createResume({
