@@ -6,14 +6,7 @@ import { registerChatRoutes } from "./replit_integrations/chat";
 import { registerImageRoutes } from "./replit_integrations/image";
 import { registerAudioRoutes } from "./replit_integrations/audio";
 import multer from "multer";
-// import * as pdfLib from "pdf-parse";
-// const pdf = pdfLib.default || pdfLib;
-import pdf from "pdf-parse";
-
-// later
-const data = await pdf(req.file.buffer);
-extractedText = data.text;
-
+import * as pdfParse from "pdf-parse";
 import mammoth from "mammoth";
 import OpenAI from "openai";
 
@@ -48,7 +41,7 @@ export async function registerRoutes(
 
       // Text Extraction
       if (req.file.mimetype === 'application/pdf') {
-        const data = await (pdf as any)(req.file.buffer);
+        const data = await (pdfParse as any).default(req.file.buffer);
         extractedText = data.text;
       } else if (req.file.mimetype === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') {
         const result = await mammoth.extractRawText({ buffer: req.file.buffer });
@@ -117,7 +110,8 @@ export async function registerRoutes(
 
   // Get Single Resume
   app.get(api.resumes.get.path, async (req, res) => {
-    const id = parseInt(req.params.id);
+    const idParam = req.params.id;
+    const id = parseInt(Array.isArray(idParam) ? idParam[0] : idParam);
     const resume = await storage.getResume(id);
     if (!resume) {
       return res.status(404).json({ message: "Resume not found" });
