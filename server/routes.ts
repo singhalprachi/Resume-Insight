@@ -18,7 +18,8 @@ const upload = multer({
 });
 
 const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
+  apiKey: process.env.AI_INTEGRATIONS_OPENAI_API_KEY,
+  baseURL: process.env.AI_INTEGRATIONS_OPENAI_BASE_URL,
 });
 
 export async function registerRoutes(
@@ -26,7 +27,6 @@ export async function registerRoutes(
   app: Express
 ): Promise<Server> {
   console.log("Registering routes...");
-  console.log("OPENAI_API_KEY status:", process.env.OPENAI_API_KEY ? "Loaded" : "Not found");
 
   // Register integration routes
   registerChatRoutes(app);
@@ -36,7 +36,6 @@ export async function registerRoutes(
   // Resume Upload & Analysis
   app.post(api.resumes.upload.path, upload.single('file'), async (req, res) => {
     console.log(`POST ${api.resumes.upload.path} hit`);
-    console.log("OPENAI_API_KEY status at route hit:", process.env.OPENAI_API_KEY ? "Loaded" : "Not found");
 
     try {
       const file = req.file;
