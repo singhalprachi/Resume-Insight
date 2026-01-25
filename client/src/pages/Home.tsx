@@ -1,11 +1,9 @@
-import { useResumes, useUploadResume } from "@/hooks/use-resumes";
+import { useUploadResume } from "@/hooks/use-resumes";
 import { ResumeUploader } from "@/components/ResumeUploader";
-import { Sidebar } from "@/components/Sidebar";
 import { useLocation } from "wouter";
-import { FileText, Star, Zap } from "lucide-react";
+import { FileText, Star, Zap, LayoutDashboard } from "lucide-react";
 
 export default function Home() {
-  const { data: resumes = [], isLoading: isLoadingResumes } = useResumes();
   const { mutateAsync: uploadResume, isPending: isUploading } = useUploadResume();
   const [, setLocation] = useLocation();
 
@@ -19,18 +17,15 @@ export default function Home() {
   };
 
   return (
-    <div className="flex min-h-screen bg-background text-foreground font-body">
-      {/* Mobile Sidebar could be implemented with a Sheet component for responsive design, 
-          but for simplicity in this prompt we'll assume desktop-first or stack vertically on mobile */}
-      <div className="hidden md:block">
-        <Sidebar resumes={resumes} isLoading={isLoadingResumes} />
-      </div>
-
+    <div className="min-h-screen bg-background text-foreground font-body">
       <main className="flex-1 overflow-y-auto">
         <div className="min-h-screen flex flex-col">
-          {/* Header Mobile */}
-          <div className="md:hidden p-4 border-b border-border bg-card flex items-center justify-between">
-             <span className="font-display font-bold text-xl">ResuMate</span>
+          {/* Header */}
+          <div className="p-4 border-b border-border bg-card flex items-center gap-2">
+            <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
+              <LayoutDashboard className="w-5 h-5 text-primary-foreground" />
+            </div>
+            <span className="font-display font-bold text-xl tracking-tight">ResuMate</span>
           </div>
 
           <div className="flex-1 flex flex-col items-center justify-center p-6 sm:p-12 lg:p-24 relative overflow-hidden">
@@ -81,6 +76,12 @@ export default function Home() {
                 </div>
               </div>
             </div>
+          </div>
+
+          <div className="p-4 border-t border-border bg-muted/20">
+            <p className="text-xs text-center text-muted-foreground">
+              &copy; {new Date().getFullYear()} ResuMate AI
+            </p>
           </div>
         </div>
       </main>
