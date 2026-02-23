@@ -1,7 +1,7 @@
 import { useUploadResume } from "@/hooks/use-resumes";
 import { ResumeUploader } from "@/components/ResumeUploader";
 import { useLocation } from "wouter";
-import { FileText, Star, Zap, LayoutDashboard, BriefcaseText } from "lucide-react";
+import { FileText, Star, Zap, LayoutDashboard, Briefcase } from "lucide-react";
 import { useState } from "react";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
@@ -54,7 +54,7 @@ export default function Home() {
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                 <div className="space-y-4">
                   <div className="flex items-center gap-2 text-primary font-bold">
-                    <BriefcaseText className="w-5 h-5" />
+                    <Briefcase className="w-5 h-5" />
                     <Label htmlFor="jd" className="text-lg">Target Job Description (Optional)</Label>
                   </div>
                   <Textarea
