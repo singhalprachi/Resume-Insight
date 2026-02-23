@@ -245,7 +245,15 @@ export function AnalysisDashboard({ resume }: AnalysisDashboardProps) {
                   <div className="bg-muted/30 p-6 flex flex-col items-center justify-center border-b md:border-b-0 md:border-r border-border/40 min-w-[200px]">
                     <History className="w-8 h-8 text-primary mb-2" />
                     <span className="text-2xl font-bold">{analysis.experienceAnalysis.yearsDetected}</span>
-                    <span className="text-xs text-muted-foreground uppercase tracking-widest">Experience Detected</span>
+                    <span className="text-xs text-muted-foreground uppercase tracking-widest text-center">Professional Experience</span>
+                    <div className="mt-2 text-xs font-medium text-primary">
+                      {analysis.experienceAnalysis.professionalMonths} Professional Mos
+                    </div>
+                    {analysis.experienceAnalysis.projectMonths > 0 && (
+                      <div className="text-[10px] text-muted-foreground mt-1">
+                        + {analysis.experienceAnalysis.projectMonths} Mos Project Work
+                      </div>
+                    )}
                   </div>
                   <div className="p-6 flex-1">
                     <h4 className="font-bold mb-2">Experience Alignment</h4>

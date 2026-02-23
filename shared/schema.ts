@@ -26,6 +26,8 @@ export const resumes = pgTable("resumes", {
     experienceAnalysis?: {
       yearsDetected: string;
       alignment: string;
+      professionalMonths: number;
+      projectMonths: number;
     };
     projectAlignmentScore?: number;
     impactfulSkills?: string[];

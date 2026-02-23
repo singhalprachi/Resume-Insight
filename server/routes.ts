@@ -97,7 +97,13 @@ SCORING LOGIC REQUIREMENTS:
 1. Required Skill High Weight: If JD provided, extract REQUIRED skills (2x weight). If not, infer industry skills.
 2. Frequency Multiplier: Increase strength for repeated skills (cap at 3 mentions).
 3. Real-World Validation: Higher weight for skills in projects/experience vs just listed.
-4. Experience Comparison: Compare years against JD or evaluate consistency.
+4. Experience Comparison: 
+   - STRICT EXPERIENCE CALCULATION: Experience must ONLY be calculated from the "Work Experience" or "Professional Experience" section.
+   - DO NOT count: Projects, academic projects, freelance (unless paid professional), internships under education, certifications, training, bootcamps, or self-learning.
+   - Internships: Only count if under Professional/Work Experience AND clearly marked with company name + duration.
+   - Duration Calculation: No inclusive month counting, no +1 extra month, no estimating missing dates. Use conservative minimums.
+   - Overlaps: Do NOT double count overlapping months.
+   - Under 6 months: Display exact calculated months, do not round up.
 5. Project Alignment: Match keywords/tech with JD domain.
 6. Recency: Recent skills get higher weight.
 7. Final Score (0-100): 
@@ -113,7 +119,9 @@ OUTPUT FORMAT (JSON ONLY):
   },
   "experienceAnalysis": {
     "yearsDetected": string,
-    "alignment": string
+    "alignment": string,
+    "professionalMonths": number,
+    "projectMonths": number
   },
   "projectAlignmentScore": number (0-100),
   "impactfulSkills": string[],
