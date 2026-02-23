@@ -1,15 +1,19 @@
 import { useUploadResume } from "@/hooks/use-resumes";
 import { ResumeUploader } from "@/components/ResumeUploader";
 import { useLocation } from "wouter";
-import { FileText, Star, Zap, LayoutDashboard } from "lucide-react";
+import { FileText, Star, Zap, LayoutDashboard, BriefcaseText } from "lucide-react";
+import { useState } from "react";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
 
 export default function Home() {
   const { mutateAsync: uploadResume, isPending: isUploading } = useUploadResume();
   const [, setLocation] = useLocation();
+  const [jobDescription, setJobDescription] = useState("");
 
   const handleUpload = async (file: File) => {
     try {
-      const result = await uploadResume(file);
+      const result = await uploadResume({ file, jobDescription });
       setLocation(`/resume/${result.id}`);
     } catch (error) {
       console.error(error);
@@ -35,7 +39,7 @@ export default function Home() {
               <div className="absolute top-[40%] -left-[10%] w-[400px] h-[400px] rounded-full bg-blue-400/5 blur-3xl" />
             </div>
 
-            <div className="w-full max-w-3xl relative z-10 space-y-12">
+            <div className="w-full max-w-4xl relative z-10 space-y-12">
               <div className="text-center space-y-6">
                 <h1 className="text-4xl sm:text-5xl lg:text-6xl font-display font-bold tracking-tight text-foreground">
                   Optimize Your Resume with <br />
@@ -47,8 +51,29 @@ export default function Home() {
                 </p>
               </div>
 
-              <div className="bg-card rounded-3xl p-8 shadow-2xl shadow-primary/10 border border-border/50 backdrop-blur-sm">
-                <ResumeUploader onUpload={handleUpload} isUploading={isUploading} />
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <div className="space-y-4">
+                  <div className="flex items-center gap-2 text-primary font-bold">
+                    <BriefcaseText className="w-5 h-5" />
+                    <Label htmlFor="jd" className="text-lg">Target Job Description (Optional)</Label>
+                  </div>
+                  <Textarea
+                    id="jd"
+                    placeholder="Paste the job description here for a more targeted analysis..."
+                    className="h-[300px] bg-card/50 backdrop-blur-sm border-border/50 rounded-2xl focus-visible:ring-primary/20 resize-none text-base"
+                    value={jobDescription}
+                    onChange={(e) => setJobDescription(e.target.value)}
+                  />
+                  <p className="text-xs text-muted-foreground italic">
+                    Tip: Providing a job description helps our AI calculate a more accurate matching score.
+                  </p>
+                </div>
+
+                <div className="flex flex-col justify-center">
+                  <div className="bg-card rounded-3xl p-8 shadow-2xl shadow-primary/10 border border-border/50 backdrop-blur-sm h-fit">
+                    <ResumeUploader onUpload={handleUpload} isUploading={isUploading} />
+                  </div>
+                </div>
               </div>
 
               {/* Features Grid */}

@@ -9,12 +9,27 @@ export const resumes = pgTable("resumes", {
   sessionId: text("session_id").notNull(), 
   filename: text("filename").notNull(),
   content: text("content").notNull(), // Extracted text
+  jobDescription: text("job_description"), // Optional JD text
   analysis: jsonb("analysis").$type<{
     skills: string[];
     strengths: string[];
     weaknesses: string[];
     atsScore: number;
     improvementSuggestions: string[];
+    marketReadinessScore?: number;
+    targetRoles?: string[];
+    skillMatchBreakdown?: {
+      requiredSkillsMatch: number;
+      preferredSkillsMatch: number;
+      missingCriticalSkills: string[];
+    };
+    experienceAnalysis?: {
+      yearsDetected: string;
+      alignment: string;
+    };
+    projectAlignmentScore?: number;
+    impactfulSkills?: string[];
+    highFrequencySkills?: string[];
   }>(),
   createdAt: timestamp("created_at").defaultNow(),
 });

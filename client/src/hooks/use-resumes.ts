@@ -32,10 +32,13 @@ export function useUploadResume() {
   const sessionId = getSessionId();
 
   return useMutation({
-    mutationFn: async (file: File) => {
+    mutationFn: async ({ file, jobDescription }: { file: File, jobDescription?: string }) => {
       const formData = new FormData();
       formData.append("file", file);
       formData.append("sessionId", sessionId);
+      if (jobDescription) {
+        formData.append("jobDescription", jobDescription);
+      }
 
       const res = await fetch(api.resumes.upload.path, {
         method: "POST",

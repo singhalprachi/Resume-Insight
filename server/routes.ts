@@ -44,6 +44,7 @@ export async function registerRoutes(
       }
 
       const sessionId = req.body.sessionId || "anonymous";
+      const jobDescription = req.body.jobDescription || "";
       let text = "";
 
       // Text Extraction
@@ -84,24 +85,62 @@ export async function registerRoutes(
       }
 
       console.log("Calling OpenAI with model: gpt-4o-mini");
+      
+      const systemPrompt = `You are an advanced ATS Resume Analysis Engine.
+Your task is to generate a highly intelligent ATS score and structured feedback.
+
+INPUT:
+- Resume Text (mandatory)
+- Job Description Text (optional)
+
+SCORING LOGIC REQUIREMENTS:
+1. Required Skill High Weight: If JD provided, extract REQUIRED skills (2x weight). If not, infer industry skills.
+2. Frequency Multiplier: Increase strength for repeated skills (cap at 3 mentions).
+3. Real-World Validation: Higher weight for skills in projects/experience vs just listed.
+4. Experience Comparison: Compare years against JD or evaluate consistency.
+5. Project Alignment: Match keywords/tech with JD domain.
+6. Recency: Recent skills get higher weight.
+7. Final Score (0-100): 
+   (Skill Match x 0.35) + (Experience Match x 0.20) + (Project Alignment x 0.20) + (Keyword Opt x 0.15) + (Recency x 0.10)
+
+OUTPUT FORMAT (JSON ONLY):
+{
+  "atsScore": number (0-100),
+  "skillMatchBreakdown": {
+    "requiredSkillsMatch": number (percentage),
+    "preferredSkillsMatch": number (percentage),
+    "missingCriticalSkills": string[]
+  },
+  "experienceAnalysis": {
+    "yearsDetected": string,
+    "alignment": string
+  },
+  "projectAlignmentScore": number (0-100),
+  "impactfulSkills": string[],
+  "highFrequencySkills": string[],
+  "strengths": string[],
+  "weaknesses": string[],
+  "improvementSuggestions": string[],
+  "marketReadinessScore": number (if no JD),
+  "targetRoles": string[] (if no JD),
+  "skills": string[] (all detected skills)
+}
+
+If JD not provided: Replace Skill Match Score with “Core Role Strength Score” and provide Market Readiness Score/Target Roles.
+Return ONLY JSON.`;
+
+      const userPrompt = `RESUME TEXT:
+${text}
+
+JOB DESCRIPTION TEXT:
+${jobDescription || "Not provided"}`;
+
       // OpenAI Analysis
       const response = await openai.chat.completions.create({
         model: "gpt-4o-mini",
         messages: [
-          {
-            role: "system",
-            content: `You are an expert Resume Analyzer and Career Coach. 
-Analyze the provided resume text and extract the following in JSON format:
-- summary: A brief professional summary of the candidate.
-- skills: Array of key technical and soft skills found.
-- strengths: Array of 3-5 strong points about the candidate.
-- weaknesses: Array of 3-5 areas for improvement or missing key elements.
-- atsScore: A number between 0-100 estimating how well-formatted and keyword-rich the resume is for ATS.
-- improvementSuggestions: Array of 3-5 actionable specific tips to improve the resume.
-
-Return ONLY the JSON object. Do not wrap in markdown code blocks.`
-          },
-          { role: "user", content: text }
+          { role: "system", content: systemPrompt },
+          { role: "user", content: userPrompt }
         ],
         response_format: { type: "json_object" }
       });
@@ -124,6 +163,7 @@ Return ONLY the JSON object. Do not wrap in markdown code blocks.`
         sessionId,
         filename: file.originalname,
         content: text,
+        jobDescription: jobDescription || null,
         analysis: analysis
       });
 
