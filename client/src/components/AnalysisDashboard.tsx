@@ -242,7 +242,7 @@ export function AnalysisDashboard({ resume }: AnalysisDashboardProps) {
             <motion.div variants={item}>
               <Card className="border-border/60 shadow-sm overflow-hidden">
                 <div className="flex flex-col md:flex-row">
-                  <div className="bg-muted/30 p-6 flex flex-col items-center justify-center border-b md:border-b-0 md:border-r border-border/40 min-w-[200px]">
+                  <div className="bg-muted/30 p-6 flex flex-col items-center justify-center min-w-[200px]">
                     <History className="w-8 h-8 text-primary mb-2" />
                     <span className="text-2xl font-bold" data-testid="text-experience-years">
                       {(analysis.experienceAnalysis.professionalMonths / 12).toFixed(2)} Years
@@ -251,12 +251,6 @@ export function AnalysisDashboard({ resume }: AnalysisDashboardProps) {
                     <div className="mt-2 text-xs font-medium text-primary" data-testid="text-experience-months">
                       {analysis.experienceAnalysis.professionalMonths} Professional Months
                     </div>
-                  </div>
-                  <div className="p-6 flex-1">
-                    <h4 className="font-bold mb-2">Experience Alignment</h4>
-                    <p className="text-sm text-muted-foreground leading-relaxed">
-                      {analysis.experienceAnalysis.alignment}
-                    </p>
                   </div>
                 </div>
               </Card>
