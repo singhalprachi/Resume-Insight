@@ -98,16 +98,15 @@ SCORING LOGIC REQUIREMENTS:
 2. Frequency Multiplier: Increase strength for repeated skills (cap at 3 mentions).
 3. Real-World Validation: Higher weight for skills in projects/experience vs just listed.
 4. Experience Comparison: 
-   - STRICT EXPERIENCE CALCULATION: Experience must ONLY be calculated from the "Work Experience" or "Professional Experience" section.
-   - ONLY count: Full-time jobs, part-time jobs, and internships clearly marked with company name + duration.
-   - DO NOT count: Academic projects, personal projects, freelance projects (unless paid professional work), certifications, training, bootcamps, or self-learning.
-   - Duration Calculation: 
-     - Use months as the base unit.
-     - 1 year = exactly 12 months.
-     - Example: 3 months = 0.25 years (3/12).
-     - No inclusive month counting, no +1 extra month, no estimating missing dates. Use conservative minimums.
-   - Overlaps: Do NOT double count overlapping months.
-   - Display: Exact professional months and years (to 2 decimal places).
+   - DYNAMIC EXPERIENCE CALCULATION: Calculate total duration based on user-provided start and end dates for each entry.
+   - ONLY count: Entries marked as "Full-time", "Part-time", "Internship", or "Contract" within the "Work Experience" or "Professional Experience" sections.
+   - DO NOT count: Academic projects, personal projects, freelance projects (unless explicitly professional contract), certifications, training, bootcamps, or self-learning.
+   - Calculation Logic:
+     - For each valid entry: duration_months = (end_date - start_date) in months.
+     - Count full months accurately (inclusive calculation if spans partial months).
+     - total_professional_months = Sum of all non-overlapping valid entry durations.
+     - years = total_professional_months / 12 (Rounded to 2 decimal places).
+   - Display: Exact total_professional_months and calculated years.
 5. Project Alignment: Match keywords/tech with JD domain (for scoring, but do NOT add this duration to professional experience).
 6. Recency: Recent skills get higher weight.
 7. Final Score (0-100): 
