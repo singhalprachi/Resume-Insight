@@ -1,7 +1,7 @@
 import { Resume } from "@shared/schema";
 import { motion } from "framer-motion";
 import { ScoreChart } from "./ScoreChart";
-import { CheckCircle, XCircle, Lightbulb, Tag, Award, Target, TrendingUp, History } from "lucide-react";
+import { CheckCircle, XCircle, Lightbulb, Tag, Award, Target, TrendingUp } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
@@ -237,25 +237,6 @@ export function AnalysisDashboard({ resume }: AnalysisDashboardProps) {
               </CardContent>
             </Card>
           </motion.div>
-
-          {analysis.experienceAnalysis && (
-            <motion.div variants={item}>
-              <Card className="border-border/60 shadow-sm overflow-hidden">
-                <div className="flex flex-col md:flex-row">
-                  <div className="bg-muted/30 p-6 flex flex-col items-center justify-center min-w-[200px]">
-                    <History className="w-8 h-8 text-primary mb-2" />
-                    <span className="text-2xl font-bold" data-testid="text-experience-years">
-                      {(analysis.experienceAnalysis.professionalMonths / 12).toFixed(2)} Years
-                    </span>
-                    <span className="text-xs text-muted-foreground uppercase tracking-widest text-center">Professional Experience</span>
-                    <div className="mt-2 text-xs font-medium text-primary" data-testid="text-experience-months">
-                      {analysis.experienceAnalysis.professionalMonths} Professional Months
-                    </div>
-                  </div>
-                </div>
-              </Card>
-            </motion.div>
-          )}
 
           <motion.div variants={item}>
             <Card className="border-border/60 shadow-lg shadow-primary/5">

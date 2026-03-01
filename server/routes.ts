@@ -97,20 +97,10 @@ SCORING LOGIC REQUIREMENTS:
 1. Required Skill High Weight: If JD provided, extract REQUIRED skills (2x weight). If not, infer industry skills.
 2. Frequency Multiplier: Increase strength for repeated skills (cap at 3 mentions).
 3. Real-World Validation: Higher weight for skills in projects/experience vs just listed.
-4. Experience Comparison: 
-   - DYNAMIC EXPERIENCE CALCULATION: Calculate total duration based on user-provided start and end dates for each entry.
-   - ONLY count: Entries marked as "Full-time", "Part-time", "Internship", or "Contract" within the "Work Experience" or "Professional Experience" sections.
-   - DO NOT count: Academic projects, personal projects, freelance projects (unless explicitly professional contract), certifications, training, bootcamps, or self-learning.
-   - Calculation Logic:
-     - For each valid entry: duration_months = (end_date - start_date) in months.
-     - Count full months accurately (inclusive calculation if spans partial months).
-     - total_professional_months = Sum of all non-overlapping valid entry durations.
-     - years = total_professional_months / 12 (Rounded to 2 decimal places).
-   - Display: Exact total_professional_months and calculated years.
-5. Project Alignment: Match keywords/tech with JD domain (for scoring, but do NOT add this duration to professional experience).
-6. Recency: Recent skills get higher weight.
-7. Final Score (0-100): 
-   (Skill Match x 0.35) + (Experience Match x 0.20) + (Project Alignment x 0.20) + (Keyword Opt x 0.15) + (Recency x 0.10)
+4. Project Alignment: Match keywords/tech with JD domain.
+5. Recency: Recent skills get higher weight.
+6. Final Score (0-100): 
+   (Skill Match x 0.45) + (Project Alignment x 0.30) + (Keyword Opt x 0.15) + (Recency x 0.10)
 
 OUTPUT FORMAT (JSON ONLY):
 {
@@ -119,12 +109,6 @@ OUTPUT FORMAT (JSON ONLY):
     "requiredSkillsMatch": number (percentage),
     "preferredSkillsMatch": number (percentage),
     "missingCriticalSkills": string[]
-  },
-  "experienceAnalysis": {
-    "yearsDetected": string,
-    "alignment": string,
-    "professionalMonths": number,
-    "projectMonths": number
   },
   "projectAlignmentScore": number (0-100),
   "impactfulSkills": string[],
