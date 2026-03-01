@@ -99,12 +99,16 @@ SCORING LOGIC REQUIREMENTS:
 3. Real-World Validation: Higher weight for skills in projects/experience vs just listed.
 4. Experience Comparison: 
    - STRICT EXPERIENCE CALCULATION: Experience must ONLY be calculated from the "Work Experience" or "Professional Experience" section.
-   - DO NOT count: Projects, academic projects, freelance (unless paid professional), internships under education, certifications, training, bootcamps, or self-learning.
-   - Internships: Only count if under Professional/Work Experience AND clearly marked with company name + duration.
-   - Duration Calculation: No inclusive month counting, no +1 extra month, no estimating missing dates. Use conservative minimums.
+   - ONLY count: Full-time jobs, part-time jobs, and internships clearly marked with company name + duration.
+   - DO NOT count: Academic projects, personal projects, freelance projects (unless paid professional work), certifications, training, bootcamps, or self-learning.
+   - Duration Calculation: 
+     - Use months as the base unit.
+     - 1 year = exactly 12 months.
+     - Example: 3 months = 0.25 years (3/12).
+     - No inclusive month counting, no +1 extra month, no estimating missing dates. Use conservative minimums.
    - Overlaps: Do NOT double count overlapping months.
-   - Under 6 months: Display exact calculated months, do not round up.
-5. Project Alignment: Match keywords/tech with JD domain.
+   - Display: Exact professional months and years (to 2 decimal places).
+5. Project Alignment: Match keywords/tech with JD domain (for scoring, but do NOT add this duration to professional experience).
 6. Recency: Recent skills get higher weight.
 7. Final Score (0-100): 
    (Skill Match x 0.35) + (Experience Match x 0.20) + (Project Alignment x 0.20) + (Keyword Opt x 0.15) + (Recency x 0.10)
