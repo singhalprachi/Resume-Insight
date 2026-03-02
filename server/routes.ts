@@ -84,7 +84,7 @@ export async function registerRoutes(
         return res.status(400).json({ message: "Unsupported file type. Please upload PDF or DOCX." });
       }
 
-      console.log("Calling OpenAI with model: gpt-4o-mini");
+      console.log("Calling OpenAI with model: gpt-4o-mini. API Key present:", !!process.env.AI_INTEGRATIONS_OPENAI_API_KEY);
       
       const systemPrompt = `You are an advanced ATS Resume Analysis Engine.
 Your task is to generate a highly intelligent ATS score and structured feedback.
@@ -104,24 +104,24 @@ SCORING LOGIC REQUIREMENTS:
 
 OUTPUT FORMAT (JSON ONLY):
 {
-  "atsScore": number (0-100),
+  "atsScore": number,
   "skillMatchBreakdown": {
-    "requiredSkillsMatch": number (percentage),
-    "preferredSkillsMatch": number (percentage),
+    "requiredSkillsMatch": number,
+    "preferredSkillsMatch": number,
     "missingCriticalSkills": string[]
   },
-  "projectAlignmentScore": number (0-100),
+  "projectAlignmentScore": number,
   "impactfulSkills": string[],
   "highFrequencySkills": string[],
   "strengths": string[],
   "weaknesses": string[],
   "improvementSuggestions": string[],
-  "marketReadinessScore": number (if no JD),
-  "targetRoles": string[] (if no JD),
-  "skills": string[] (all detected skills)
+  "marketReadinessScore": number,
+  "targetRoles": string[],
+  "skills": string[]
 }
 
-If JD not provided: Replace Skill Match Score with “Core Role Strength Score” and provide Market Readiness Score/Target Roles.
+If JD not provided: Use the "atsScore" field to represent the “Core Role Strength Score” and provide Market Readiness Score/Target Roles.
 Return ONLY JSON.`;
 
       const userPrompt = `RESUME TEXT:
@@ -141,19 +141,47 @@ ${jobDescription || "Not provided"}`;
       });
 
       const analysisContent = response.choices[0].message.content;
-      console.log("OpenAI raw response received");
+      console.log("OpenAI response received:", analysisContent);
 
       if (!analysisContent) throw new Error("Failed to get analysis from AI");
 
       let analysis;
       try {
-        analysis = JSON.parse(analysisContent);
+        // Strip markdown code blocks and ensure valid JSON
+        const cleanedContent = analysisContent.replace(/```json\n?|\n?```/g, "").trim();
+        console.log("Parsing cleaned analysis content:", cleanedContent);
+        analysis = JSON.parse(cleanedContent);
+        
+        // Robust field validation and defaults to prevent frontend crashes
+        analysis.atsScore = typeof analysis.atsScore === 'number' ? analysis.atsScore : 0;
+        analysis.strengths = Array.isArray(analysis.strengths) ? analysis.strengths : [];
+        analysis.weaknesses = Array.isArray(analysis.weaknesses) ? analysis.weaknesses : [];
+        analysis.improvementSuggestions = Array.isArray(analysis.improvementSuggestions) ? analysis.improvementSuggestions : [];
+        analysis.skills = Array.isArray(analysis.skills) ? analysis.skills : [];
+        analysis.marketReadinessScore = typeof analysis.marketReadinessScore === 'number' ? analysis.marketReadinessScore : 0;
+        analysis.projectAlignmentScore = typeof analysis.projectAlignmentScore === 'number' ? analysis.projectAlignmentScore : 0;
+
+        // Ensure skillMatchBreakdown exists with defaults
+        if (!analysis.skillMatchBreakdown || typeof analysis.skillMatchBreakdown !== 'object') {
+          analysis.skillMatchBreakdown = {
+            requiredSkillsMatch: 0,
+            preferredSkillsMatch: 0,
+            missingCriticalSkills: []
+          };
+        } else {
+          analysis.skillMatchBreakdown.requiredSkillsMatch = typeof analysis.skillMatchBreakdown.requiredSkillsMatch === 'number' ? analysis.skillMatchBreakdown.requiredSkillsMatch : 0;
+          analysis.skillMatchBreakdown.preferredSkillsMatch = typeof analysis.skillMatchBreakdown.preferredSkillsMatch === 'number' ? analysis.skillMatchBreakdown.preferredSkillsMatch : 0;
+          analysis.skillMatchBreakdown.missingCriticalSkills = Array.isArray(analysis.skillMatchBreakdown.missingCriticalSkills) 
+            ? analysis.skillMatchBreakdown.missingCriticalSkills 
+            : [];
+        }
       } catch (parseError) {
         console.error("Failed to parse OpenAI response as JSON:", analysisContent);
         throw new Error("Invalid AI response format");
       }
 
       // Save to DB
+      console.log("Preparing to save resume to DB...");
       const resume = await storage.createResume({
         sessionId,
         filename: file.originalname,
@@ -162,6 +190,7 @@ ${jobDescription || "Not provided"}`;
         analysis: analysis
       });
 
+      console.log("Analysis successfully saved to database for ID:", resume.id);
       res.status(201).json(resume);
 
     } catch (error) {

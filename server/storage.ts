@@ -20,7 +20,11 @@ export class DatabaseStorage implements IStorage {
 
   // Resume storage
   async createResume(resume: InsertResume & { analysis: any }): Promise<Resume> {
-    const [newResume] = await db.insert(resumes).values(resume).returning();
+    const data = {
+      ...resume,
+      analysis: typeof resume.analysis === 'string' ? JSON.parse(resume.analysis) : resume.analysis
+    };
+    const [newResume] = await db.insert(resumes).values(data).returning();
     return newResume;
   }
 

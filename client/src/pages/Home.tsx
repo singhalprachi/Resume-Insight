@@ -13,10 +13,24 @@ export default function Home() {
 
   const handleUpload = async (file: File) => {
     try {
+      console.log("Starting upload for file:", file.name);
       const result = await uploadResume({ file, jobDescription });
-      setLocation(`/resume/${result.id}`);
-    } catch (error) {
-      console.error(error);
+      console.log("Upload successful, result:", result);
+      if (result && result.id) {
+        setLocation(`/resume/${result.id}`);
+      } else {
+        throw new Error("Invalid response from server: Missing ID");
+      }
+    } catch (error: any) {
+      console.error("Upload failed in Home.tsx:", error);
+      const errorMessage = error.response?.data?.message || error.message || "Could not analyze resume. Please try again.";
+      import("@/hooks/use-toast").then(({ toast }) => {
+        toast({
+          title: "Analysis Failed",
+          description: errorMessage,
+          variant: "destructive",
+        });
+      });
     }
   };
 

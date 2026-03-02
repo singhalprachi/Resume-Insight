@@ -69,7 +69,7 @@ export function AnalysisDashboard({ resume }: AnalysisDashboardProps) {
               <CardContent className="pt-6">
                 <ScoreChart score={analysis.atsScore || 0} />
                 <div className="mt-4 space-y-4">
-                  {analysis.marketReadinessScore && (
+                  {analysis.marketReadinessScore != null && (
                     <div className="space-y-1">
                       <div className="flex justify-between text-sm">
                         <span className="text-muted-foreground">Market Readiness</span>
@@ -78,7 +78,7 @@ export function AnalysisDashboard({ resume }: AnalysisDashboardProps) {
                       <Progress value={analysis.marketReadinessScore} className="h-2" />
                     </div>
                   )}
-                  {analysis.projectAlignmentScore !== undefined && (
+                  {analysis.projectAlignmentScore != null && (
                     <div className="space-y-1">
                       <div className="flex justify-between text-sm">
                         <span className="text-muted-foreground">Project Alignment</span>
@@ -248,7 +248,7 @@ export function AnalysisDashboard({ resume }: AnalysisDashboardProps) {
               </CardHeader>
               <CardContent className="pt-6">
                 <div className="space-y-4">
-                  {(analysis.improvementSuggestions || []).map((suggestion, i) => (
+                  {(analysis.improvementSuggestions || []).map((suggestion: string, i: number) => (
                     <div key={i} className="group">
                       <div className="flex gap-4">
                         <div className="flex-shrink-0 w-8 h-8 rounded-full bg-primary/10 text-primary flex items-center justify-center font-bold text-sm">
