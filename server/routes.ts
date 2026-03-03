@@ -9,7 +9,11 @@ import multer from "multer";
 import mammoth from "mammoth";
 import OpenAI from "openai";
 import { createRequire } from "module";
-const require = createRequire(import.meta.url);
+
+// Use a robust way to handle pdf-parse that works in both ESM (dev) and CJS (prod bundle)
+// @ts-ignore
+const _metaUrl = typeof __IMPORT_META_URL__ !== 'undefined' ? __IMPORT_META_URL__ : import.meta.url;
+const require = createRequire(_metaUrl);
 const pdfParse = require("pdf-parse");
 
 const upload = multer({ 

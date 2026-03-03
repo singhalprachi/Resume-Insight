@@ -52,12 +52,17 @@ async function buildAll() {
     bundle: true,
     format: "cjs",
     outfile: "dist/index.cjs",
+    platform: "node",
+    bundle: true,
+    minify: true,
+    external: externals,
     define: {
       "process.env.NODE_ENV": '"production"',
     },
+    banner: {
+      js: 'var __IMPORT_META_URL__ = require("url").pathToFileURL(__filename).href;',
+    },
     minify: true,
-    external: externals,
-    logLevel: "info",
   });
 }
 

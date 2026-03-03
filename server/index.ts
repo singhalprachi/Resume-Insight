@@ -60,7 +60,17 @@ app.use((req, res, next) => {
 });
 
 (async () => {
-  await registerRoutes(httpServer, app);
+  try {
+    await registerRoutes(httpServer, app);
+  } catch (err) {
+    console.error("Critical error during route registration:", err);
+    // In production, we want to see the error but maybe not crash if possible, 
+    // though route registration failure is usually fatal.
+    if (process.env.NODE_ENV === "production") {
+       console.error("Production startup error detail:", JSON.stringify(err, Object.getOwnPropertyNames(err)));
+    }
+    process.exit(1);
+  }
 
   app.use((err: any, _req: Request, res: Response, next: NextFunction) => {
     const status = err.status || err.statusCode || 500;
