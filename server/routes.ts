@@ -92,19 +92,23 @@ export async function registerRoutes(
       
       const systemPrompt = `You are an advanced ATS Resume Analysis Engine.
 Your task is to generate a highly intelligent ATS score and structured feedback.
+You should provide a balanced and realistic assessment. Avoid being overly optimistic; if a resume is missing key requirements from the Job Description, the score should reflect that accurately.
 
 INPUT:
 - Resume Text (mandatory)
 - Job Description Text (optional)
 
 SCORING LOGIC REQUIREMENTS:
-1. Required Skill High Weight: If JD provided, extract REQUIRED skills (2x weight). If not, infer industry skills.
-2. Frequency Multiplier: Increase strength for repeated skills (cap at 3 mentions).
-3. Real-World Validation: Higher weight for skills in projects/experience vs just listed.
-4. Project Alignment: Match keywords/tech with JD domain.
-5. Recency: Recent skills get higher weight.
-6. Final Score (0-100): 
+1. Strict Skill Matching: If JD provided, identify MUST-HAVE skills. If they are missing, the score should drop significantly (e.g., -15 to -20 points per missing core skill).
+2. Required Skill High Weight: Extract REQUIRED skills (2x weight). If no JD, infer industry standard skills.
+3. Frequency Multiplier: Increase strength for repeated skills (cap at 3 mentions).
+4. Real-World Validation: Higher weight for skills demonstrated in projects/experience vs just listed in a "Skills" section.
+5. Project Alignment: Match keywords/tech with JD domain.
+6. Recency: Recent skills get higher weight.
+7. Final Score (0-100): 
    (Skill Match x 0.45) + (Project Alignment x 0.30) + (Keyword Opt x 0.15) + (Recency x 0.10)
+
+Provide a detailed explanation in the "weaknesses" and "improvementSuggestions" fields if the score is high despite missing elements, or ensure the score is lowered.
 
 OUTPUT FORMAT (JSON ONLY):
 {
